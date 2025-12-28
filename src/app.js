@@ -6,18 +6,21 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Load environment variables (only in development, Railway provides them directly in production)
+// Load environment variables FIRST (only in development)
 if (process.env.NODE_ENV !== 'production') {
   dotenv.config({ path: join(__dirname, '..', '.env') });
 }
 
-// Verify env variables are loaded
+// Verify env variables are loaded BEFORE importing database
 console.log('Environment Check:');
 console.log('JWT_SECRET loaded:', process.env.JWT_SECRET ? 'Yes ✓' : 'No ✗');
 console.log('DB_HOST:', process.env.DB_HOST || 'NOT SET');
 console.log('DB_PORT:', process.env.DB_PORT || 'NOT SET');
 console.log('DB_NAME:', process.env.DB_NAME || 'NOT SET');
+console.log('DB_USER:', process.env.DB_USER || 'NOT SET');
+console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? '********' : 'NOT SET');
 
+// NOW import database and other modules
 import "./utils/database.js";
 import express from "express";
 import cors from "cors";
@@ -29,6 +32,8 @@ import userRoutes from "./routes/users.js";
 import likeRoutes from "./routes/likes.js";
 import commentRoutes from "./routes/comments.js";
 import { runScheduler } from "./scheduler/ScheduledPosts.js";
+
+// Start scheduler
 runScheduler();
 
 //middlewares
