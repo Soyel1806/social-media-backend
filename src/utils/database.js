@@ -15,28 +15,42 @@ function getPool() {
         connectionString: process.env.DATABASE_URL,
         ssl: { rejectUnauthorized: false }
       };
-    } 
-    // Priority 2: Use PG* variables (Railway also provides these)
-    else if (process.env.PGHOST) {
+    }
+    // Priority 2: Use DATABASE_PUBLIC_URL (Railway alternative)
+    else if (process.env.DATABASE_PUBLIC_URL) {
+      console.log("✅ Using DATABASE_PUBLIC_URL from Railway");
+      dbConfig = {
+        connectionString: process.env.DATABASE_PUBLIC_URL,
+        ssl: { rejectUnauthorized: false }
+      };
+    }
+    // Priority 3: Use PG* variables (Railway also provides these)
+    else if (process.env.PGHOST && process.env.PGPASSWORD) {
       console.log("✅ Using PG* variables from Railway");
       dbConfig = {
         host: process.env.PGHOST,
-        port: Number(process.env.PGPORT),
+        port: Number(process.env.PGPORT) || 5432,
         database: process.env.PGDATABASE,
         user: process.env.PGUSER,
-        password: String(process.env.PGPASSWORD || ''),
+        password: process.env.PGPASSWORD,
         ssl: { rejectUnauthorized: false }
       };
     } 
-    // Priority 3: Fallback to custom DB_* variables (for local development)
-    else {
+    // Priority 4: Use POSTGRES_* variables (Railway reference format)
+    else if (process.env.POSTGRES_USER && process.env.POSTGRES_PASSWORD) {
+      console.log("✅ Using POSTGRES_* variables from Railway");
+      dbConfig = {
+        host: process.env.PGHOST,
+        port: Number(process.env.PGPORT) || 5432,
+        database: process.env.POSTGRES_DB,
+        user: process.env.POSTGRES_USER,
+        password: process.env.POSTGRES_PASSWORD,
+        ssl: { rejectUnauthorized: false }
+      };
+    }
+    // Priority 5: Fallback to custom DB_* variables (for local development)
+    else if (process.env.DB_PASSWORD) {
       console.log("✅ Using DB_* variables (local development)");
-      
-      // Validate password exists
-      if (!process.env.DB_PASSWORD) {
-        console.error("❌ CRITICAL: DB_PASSWORD is not set!");
-        throw new Error("DB_PASSWORD environment variable is required");
-      }
       
       dbConfig = {
         host: process.env.DB_HOST || 'localhost',
@@ -45,6 +59,13 @@ function getPool() {
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
       };
+    } 
+    else {
+      console.error("❌ CRITICAL: No database configuration found!");
+      console.error("Available env vars:", Object.keys(process.env).filter(k => 
+        k.includes('DB') || k.includes('PG') || k.includes('POSTGRES') || k.includes('DATABASE')
+      ));
+      throw new Error("No database configuration available. Check Railway variable reference.");
     }
 
     console.log("📊 Database configuration loaded successfully");

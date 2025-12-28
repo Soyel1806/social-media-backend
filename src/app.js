@@ -13,7 +13,13 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Verify env variables are loaded BEFORE importing database
 console.log('Environment Check:');
+console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('JWT_SECRET loaded:', process.env.JWT_SECRET ? 'Yes ✓' : 'No ✗');
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
+console.log('DATABASE_PUBLIC_URL:', process.env.DATABASE_PUBLIC_URL ? 'SET' : 'NOT SET');
+console.log('PGHOST:', process.env.PGHOST || 'NOT SET');
+console.log('PGDATABASE:', process.env.PGDATABASE || 'NOT SET');
+console.log('POSTGRES_DB:', process.env.POSTGRES_DB || 'NOT SET');
 console.log('DB_HOST:', process.env.DB_HOST || 'NOT SET');
 console.log('DB_PORT:', process.env.DB_PORT || 'NOT SET');
 console.log('DB_NAME:', process.env.DB_NAME || 'NOT SET');
