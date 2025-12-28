@@ -1,17 +1,23 @@
-import pkg from 'pg';
+import pkg from "pg";
 const { Pool } = pkg;
+import dotenv from "dotenv";
+dotenv.config();
 
-// Create a connection pool
-export const db = new Pool({
-  user: "postgres",       // your postgres username
-  host: "localhost",
-  database: "social_media",  // the DB you created earlier
-  password: "Soyelig@1806", // replace with your actual password
-  port: 5432,
+console.log("DB ENV:", {
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  name: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD ? "********" : "NOT SET"
 });
 
-// Just to verify connection works (run once)
-db.connect()
-  .then(() => console.log("PostgreSQL connected successfully 🟢"))
-  .catch(err => console.log("PostgreSQL connection error 🔴", err));
+export const db = new Pool({
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  database: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  ssl: { rejectUnauthorized: false }   // IMPORTANT FOR RAILWAY !!!
+});
+
 
