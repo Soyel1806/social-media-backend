@@ -5,19 +5,29 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
-dotenv.config();
+// Only load .env in development (Railway provides env vars directly in production)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 // Resolve __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const setupDatabase = async () => {
+  console.log('Database Setup - Environment Check:');
+  console.log('DB_HOST:', process.env.DB_HOST || 'NOT SET');
+  console.log('DB_PORT:', process.env.DB_PORT || 'NOT SET');
+  console.log('DB_NAME:', process.env.DB_NAME || 'NOT SET');
+  console.log('DB_USER:', process.env.DB_USER || 'NOT SET');
+  
   const pool = new Pool({
     host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
+    port: Number(process.env.DB_PORT),
     database: process.env.DB_NAME,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
+    ssl: { rejectUnauthorized: false }  // IMPORTANT FOR RAILWAY !!!
   });
 
   try {

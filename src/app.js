@@ -6,11 +6,17 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Load .env from root directory (one level up from src/)
-dotenv.config({ path: join(__dirname, '..', '.env') });
+// Load environment variables (only in development, Railway provides them directly in production)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: join(__dirname, '..', '.env') });
+}
 
 // Verify env variables are loaded
+console.log('Environment Check:');
 console.log('JWT_SECRET loaded:', process.env.JWT_SECRET ? 'Yes ✓' : 'No ✗');
+console.log('DB_HOST:', process.env.DB_HOST || 'NOT SET');
+console.log('DB_PORT:', process.env.DB_PORT || 'NOT SET');
+console.log('DB_NAME:', process.env.DB_NAME || 'NOT SET');
 
 import "./utils/database.js";
 import express from "express";
